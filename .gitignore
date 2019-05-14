@@ -1,0 +1,13 @@
+*.pk[37]
+*.zip
+nocommit/*
+golf_pk3/*
+core.*
+zandronum-crash*
+!addons/*
+*.lnk
+*.backup?
+*.dbs
+*.bkp
+*.bak
+desktop.ini

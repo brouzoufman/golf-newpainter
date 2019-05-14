@@ -1,0 +1,2 @@
+user int golf_paintsens = 100;
+user int golf_colorsens = 250;

@@ -1,0 +1,333 @@
+actor PaintingEnabled: Boolean {}
+
+actor NewPainter: Weapon
+{
+    Weapon.SlotNumber 0
+    Weapon.SelectionOrder 0x7FFFFFFF
+    
+    Weapon.BobRangeX 0.9
+    Weapon.BobRangeY 0.45
+    Weapon.BobSpeed 1.3
+    Weapon.BobStyle Alpha
+    Tag "Paint Gun"
+    
+    +WEAPON.NOAUTOAIM
+    +WEAPON.NOALERT
+    +INVENTORY.UNDROPPABLE
+    +WEAPON.NO_AUTO_SWITCH
+    
+    States
+    {
+      Spawn:
+        TNT1 A 0
+        stop
+      
+      Select:
+        PNTR A 0 A_TakeInventory("PaintingEnabled")
+        PNTR A 0 ACS_NamedExecuteAlways("Golf_SelectPainter")
+        PNTR A 0 A_JumpIfInventory("SwingStage1", 1, "SwingCancelled")
+        goto Select2
+      
+      SwingCancelled:
+        PNTR A 0 ACS_NamedExecuteWithResult("GOLF_DECORATE", 3) // unfreezes player, cancels swing
+        PNTR A 0 A_TakeInventory("CancelSwing")
+        PNTR A 0 A_TakeInventory("SwingStage1") // Already taken via ACS, but Just In Case.
+        PNTR A 0 A_TakeInventory("SwingArc")
+        goto Select2
+      
+      Select2:
+        PNTR AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Raise
+        PNTR A 1 A_Raise
+        loop
+        
+      Deselect:
+        PNTR A 0 A_StopSound(6)
+        PNTR A 0 A_PlaySound("silence", 6)
+        PNTR A 0 A_TakeInventory("PaintingEnabled")
+        PNTR A 0 A_TakeInventory("PowerNoSpeed")
+        goto Deselect2
+      
+      Deselect2:
+        PNTR AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Lower
+        PNTR A 1 A_Lower
+        loop
+      
+      Ready:
+        PNTR A 0 A_TakeInventory("PaintingEnabled")
+        PNTR A 0 A_StopSound(6)
+        PNTR A 1 A_WeaponReady
+        wait
+        
+      
+      Fire:
+        // Signals to the SprayPaint function (running on the client) that it's
+        //  okay to send paint calls now
+        PNTR H 0 A_GiveInventory("PaintingEnabled")
+        
+        PNTR H 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        PNTR H 0 A_PlaySound("*fistgrunt", 7)   // spraying start sound
+        PNTR I 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        PNTR I 0 A_PlaySound("*fist", 6, 1.0, true)   // spraying loop sound
+        goto Hold
+      
+      Hold:
+        PNTR I 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        PNTR I 0 A_Refire
+        goto DonePainting
+      
+      DonePainting:
+        PNTR J 0 A_ClearRefire
+        PNTR J 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        PNTR J 0 A_StopSound(6)
+        PNTR HK 1 A_WeaponReady(WRF_DISABLESWITCH)
+        PNTR K 0 A_PlaySound("silence", 6)
+        PNTR A 1 A_WeaponReady(WRF_DISABLESWITCH)
+        goto Ready
+      
+      
+      // Doesn't actually do anything on its own; just runs an animation while
+      //  a clientside script handles the menu
+      AltFire:
+        PNTR I 0 A_ClearRefire
+        PNTR I 0 A_StopSound(6)
+        PNTR I 0 A_PlaySound("color/empty", 5)
+        PNTR I 0 A_TakeInventory("PaintingEnabled")
+        PNTR I 0 A_GiveInventory("PowerNoSpeed")
+        PNTR FD 1
+        PNTR D 0 A_PlaySound("silence", 6)
+        goto AltHold
+      
+      AltHold:
+        // dumb workaround
+        PNTR B 0 A_JumpIfInventory("PaintingEnabled", 1, "AltFire")
+        PNTR B 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOFIRE)
+        PNTR B 0 A_Refire
+        goto AltEnd
+      
+      AltEnd:
+        PNTR B 0 A_TakeInventory("PowerNoSpeed")
+        PNTR B 0 A_PlaySound("color/type", CHAN_WEAPON)
+        PNTR CD  1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOFIRE)
+        PNTR EFG 1 A_WeaponReady(WRF_DISABLESWITCH)
+        goto Ready
+    }
+}
+
+
+
+actor NewPaintWand: Weapon
+{
+    Weapon.SlotNumber 0
+    Weapon.SelectionOrder 0x7FFFFFFF
+    
+    Weapon.BobRangeX 0.9
+    Weapon.BobRangeY 0.45
+    Weapon.BobSpeed 1.3
+    Weapon.BobStyle Alpha
+    Tag "Paint Wand"
+    
+    +WEAPON.NOAUTOAIM
+    +WEAPON.NOALERT
+    +INVENTORY.UNDROPPABLE
+    +WEAPON.NO_AUTO_SWITCH
+    
+    States
+    {
+      Spawn:
+        TNT1 A 0
+        stop
+      
+      Select:
+        PWN0 A 0 A_TakeInventory("PaintingEnabled")
+        PWN0 A 0 ACS_NamedExecuteAlways("Golf_SelectPainter", 0, 1)
+        PWN0 A 0 A_JumpIfInventory("SwingStage1", 1, "SwingCancelled")
+        goto Select2
+      
+      SwingCancelled:
+        PWN0 A 0 ACS_NamedExecuteWithResult("GOLF_DECORATE", 3) // unfreezes player, cancels swing
+        PWN0 A 0 A_TakeInventory("CancelSwing")
+        PWN0 A 0 A_TakeInventory("SwingStage1") // Already taken via ACS, but Just In Case.
+        PWN0 A 0 A_TakeInventory("SwingArc")
+        goto Select2
+      
+      Select2:
+        PWN0 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Raise
+        PWN0 A 1 A_Raise
+        loop
+        
+      Deselect:
+        PWN0 A 0 A_StopSound(6)
+        PWN0 A 0 A_PlaySound("silence", 6)
+        PWN0 A 0 A_TakeInventory("PaintingEnabled")
+        PWN0 A 0 A_TakeInventory("PowerNoSpeed")
+        goto Deselect2
+      
+      Deselect2:
+        PWN0 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Lower
+        PWN0 A 1 A_Lower
+        loop
+      
+      
+      Ready:
+        PWN0 A 0 A_TakeInventory("PaintingEnabled")
+        PWN0 A 0 A_StopSound(6)
+        goto ReadyColor
+        
+      ReadyColor:
+        PWN0 A 0 A_JumpIfInventory("ColorType", 7, "ReadyWhite")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 6, "ReadyCyan")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 5, "ReadyMagenta")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 4, "ReadyYellow")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 3, "ReadyBlue")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 2, "ReadyGreen")
+        PWN0 A 0 A_JumpIfInventory("ColorType", 1, "ReadyRed")
+        goto ReadyBlack
+      
+      ReadyBlack:
+        PWN0 A 0
+        goto ReadyLoop
+      
+      ReadyRed:
+        PWN1 A 0
+        goto ReadyLoop
+      
+      ReadyGreen:
+        PWN2 A 0
+        goto ReadyLoop
+      
+      ReadyBlue:
+        PWN3 A 0
+        goto ReadyLoop
+      
+      ReadyYellow:
+        PWN4 A 0
+        goto ReadyLoop
+      
+      ReadyMagenta:
+        PWN5 A 0
+        goto ReadyLoop
+      
+      ReadyCyan:
+        PWN6 A 0
+        goto ReadyLoop
+      
+      ReadyWhite:
+        PWN7 A 0
+        goto ReadyLoop
+      
+      ReadyLoop:
+        "####" AAAAAAAA 1 A_WeaponReady
+        goto ReadyColor
+        
+      
+      Fire:
+        // Signals to the SprayPaint function (running on the client) that it's
+        //  okay to send paint calls now
+        "####" G 0 A_GiveInventory("PaintingEnabled")
+        
+        "####" G 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        "####" G 0 A_PlaySound("wand/fire", 7)   // spraying start sound
+        "####" H 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        "####" H 0 A_PlaySound("wand/loop", 6, 1.0, true)   // spraying loop sound
+        goto Hold
+      
+      Hold:
+        "####" H 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        "####" H 0 A_Refire
+        goto DonePainting
+      
+      DonePainting:
+        "####" G 0 A_ClearRefire
+        "####" G 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOPRIMARY)
+        "####" G 0 A_StopSound(6)
+        "####" A 1 A_WeaponReady(WRF_DISABLESWITCH)
+        "####" A 0 A_PlaySound("silence", 6)
+        goto Ready
+      
+      
+      // Doesn't actually do anything on its own; just runs an animation while
+      //  a clientside script handles the menu
+      AltFire:
+        "####" A 0 A_ClearRefire
+        "####" A 0 A_StopSound(6)
+        "####" A 0 A_PlaySound("wand/empty", 5)
+        "####" A 0 A_TakeInventory("PaintingEnabled")
+        "####" A 0 A_GiveInventory("PowerNoSpeed")
+        "####" BC 1
+        "####" C 0 A_PlaySound("silence", 6)
+        "####" DE 1
+        goto AltHold
+      
+      AltHold:
+        // dumb workaround
+        TNT1 A 0 A_JumpIfInventory("PaintingEnabled", 1, "AltFire")
+        TNT1 A 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOFIRE)
+        TNT1 A 0 A_Refire
+        goto AltColorPick
+      
+      AltColorPick:
+        TNT1 A 0 A_JumpIfInventory("ColorType", 7, "AltWhite")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 6, "AltCyan")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 5, "AltMagenta")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 4, "AltYellow")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 3, "AltBlue")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 2, "AltGreen")
+        TNT1 A 0 A_JumpIfInventory("ColorType", 1, "AltRed")
+        goto AltBlack
+      
+      AltBlack:
+        PWN0 A 0
+        goto AltEnd
+      
+      AltRed:
+        PWN1 A 0
+        goto AltEnd
+      
+      AltGreen:
+        PWN2 A 0
+        goto AltEnd
+      
+      AltBlue:
+        PWN3 A 0
+        goto AltEnd
+      
+      AltYellow:
+        PWN4 A 0
+        goto AltEnd
+      
+      AltMagenta:
+        PWN5 A 0
+        goto AltEnd
+      
+      AltCyan:
+        PWN6 A 0
+        goto AltEnd
+      
+      AltWhite:
+        PWN7 A 0
+        goto AltEnd
+        
+      AltEnd:
+        "####" F 0 A_TakeInventory("PowerNoSpeed")
+        "####" F 0 A_PlaySound("wand/type", CHAN_WEAPON)
+        "####" FE 1 A_WeaponReady(WRF_DISABLESWITCH | WRF_NOFIRE)
+        "####" DCB 1 A_WeaponReady(WRF_DISABLESWITCH)
+        goto Ready
+    }
+}
+
+
+actor PowerNoSpeed: PowerSpeed
+{
+    +NOTRAIL
+    +UNDROPPABLE
+    Powerup.Duration 0x7FFFFFFF
+    Speed 0
+    
+    States
+    {
+      Spawn:
+        TNT1 A 0
+        stop
+    }
+}

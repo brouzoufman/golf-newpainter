@@ -1,0 +1,22 @@
+class GolfStuff
+{
+    static bool HasZScript()
+    {
+        return true;
+    }
+    
+    static double GetFloorClip(Actor activator, int tid)
+    {
+        if (tid)
+        {
+            let iter = ActorIterator.Create(tid);
+            activator = iter.Next();
+            if (!activator) { return 0; }
+        }
+        
+        let terrain = activator.GetFloorTerrain();
+        if (!terrain) { return 0; }
+        
+        return terrain.footclip;
+    }
+}
