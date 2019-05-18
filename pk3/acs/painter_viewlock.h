@@ -89,8 +89,9 @@ function void ScreenToWorld_Software(int screenX, int screenY, int angle, int pi
     int rightX   = cos(angle - 0.25);
     int rightY   = sin(angle - 0.25);
     
-    // honestly, I'm not entirely sure why fovScalar factors in, but it does,
-    //  and I am okay with this
+    // FOV factors in here because "one screen up" means different things
+    //  depending on your FOV, and not handling that means this only works
+    //  properly at FOV 90
     int zAdjust  = -FixedMul(FixedDiv(sin(pitch), cos(pitch)), fovScalar);
     
     int aimX = forwardX + FixedMul(rightX, screenX);
