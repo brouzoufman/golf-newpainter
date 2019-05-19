@@ -26,6 +26,8 @@ script "Golf_SelectColor" (int index) net
 
 script "Golf_SprayPaint" (int aimX, int aimY, int aimZ) net
 {
+    if (!CheckInventory("PaintingEnabled")) { terminate; }
+    
     // normalize this in case someone's getting cheeky with puke commands and is
     //  trying to make the server choke via lots of fastprojectiles going very fast
     //

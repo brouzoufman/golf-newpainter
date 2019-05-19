@@ -22,6 +22,9 @@ the following improvements:
 - The paint cursor and color selection menu have been clientsided, which means your
   ping will not affect the responiveness of either of them.
 
+- Painting is now continuous, no matter how fast you move the mouse. This is limited
+  online, for bandwidth purposes.
+
 - The painters have been made more responsive in general.
 
 

@@ -42,6 +42,7 @@ function int middle(int x, int y, int z)
 }
 
 
+// none of these four functions should be necessary
 function int tan(int a)
 {
     return FixedDiv(sin(a), cos(a));
@@ -50,6 +51,16 @@ function int tan(int a)
 function int cot(int a)
 {
     return FixedDiv(cos(a), sin(a));
+}
+
+function int atan(int x)
+{
+    return VectorAngle(1.0, x);
+}
+
+function int acos(int x)
+{
+    return atan(FixedDiv(FixedSqrt(1.0 - FixedMul(x,x)), x));
 }
 
 
@@ -77,6 +88,31 @@ function int angleDifference(int ang1, int ang2)
     if (angDiff >= 0.5) { return angDiff - 1.0; }
     if (angDiff < -0.5) { return angDiff + 1.0; }
     return angDiff;
+}
+
+
+// Dot product of 3D vectors
+function int dot3(int x1, int y1, int z1, int x2, int y2, int z2)
+{
+    return FixedMul(x1, x2) + FixedMul(y1, y2) + FixedMul(z1, z2);
+}
+
+
+int cross3_ret[3];
+
+// Stores the cross product of the given 3D vectors in cross3_ret
+function void cross3(int x1, int y1, int z1, int x2, int y2, int z2)
+{
+    cross3_ret[0] = FixedMul(y1, z2) - FixedMul(z1, y2);
+    cross3_ret[1] = FixedMul(z1, x2) - FixedMul(x1, z2);
+    cross3_ret[2] = FixedMul(x1, y2) - FixedMul(y1, x2);
+}
+
+
+// Calculates the angle between two 3D unit vectors
+function int angle3Unit(int x1, int y1, int z1, int x2, int y2, int z2)
+{
+    return acos(dot3(x1,y1,z1, x2,y2,z2));
 }
 
 
