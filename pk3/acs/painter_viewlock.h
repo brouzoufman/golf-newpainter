@@ -55,7 +55,7 @@ function void ScreenToWorld_True3D(int screenX, int screenY, int angle, int pitc
         upZ = FixedDiv(upZ, 1.2);
     }
     
-    int fovScalar = FixedDiv(cos(fov/2), sin(fov/2));
+    int fovScalar = cot(fov/2);
     forwardX = FixedMul(forwardX, fovScalar);
     forwardY = FixedMul(forwardY, fovScalar);
     forwardZ = FixedMul(forwardZ, fovScalar);
@@ -92,7 +92,7 @@ function void ScreenToWorld_Software(int screenX, int screenY, int angle, int pi
     // FOV factors in here because "one screen up" means different things
     //  depending on your FOV, and not handling that means this only works
     //  properly at FOV 90
-    int zAdjust  = -FixedMul(FixedDiv(sin(pitch), cos(pitch)), fovScalar);
+    int zAdjust  = -FixedMul(tan(pitch), fovScalar);
     
     int aimX = forwardX + FixedMul(rightX, screenX);
     int aimY = forwardY + FixedMul(rightY, screenX);
