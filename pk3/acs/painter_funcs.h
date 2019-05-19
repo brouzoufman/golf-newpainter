@@ -42,6 +42,17 @@ function int middle(int x, int y, int z)
 }
 
 
+function int tan(int a)
+{
+    return FixedDiv(sin(a), cos(a));
+}
+
+function int cot(int a)
+{
+    return FixedDiv(cos(a), sin(a));
+}
+
+
 function int oldRound(int toround)
 {
     return (toround + 0.5) >> 16;

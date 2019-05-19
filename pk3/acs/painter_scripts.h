@@ -64,3 +64,9 @@ script "Golf_SprayPaint" (int aimX, int aimY, int aimZ) net
     
     Thing_ChangeTID(myTID, myTID_old);
 }
+
+
+script "Golf_ServerOpen" open
+{
+    IsServer = true;
+}

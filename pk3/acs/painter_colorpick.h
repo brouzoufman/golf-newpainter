@@ -119,7 +119,7 @@ script "Golf_ColorPicker" enter clientside
             
             int deltaX = GetPlayerInput(-1, INPUT_YAW);
             int deltaY = FixedMul(itofDiv(screenW, screenH), GetPlayerInput(-1, INPUT_PITCH));
-            int sens   = itofDiv(GetUserCVar(pln, "golf_colorsens") * 2, 25);
+            int sens   = itofDiv(GetUserCVar(pln, "golf_cl_colorsens") * 2, 25);
             
             mouseX -= FixedMul(deltaX, sens);
             mouseY -= FixedMul(deltaY, sens);

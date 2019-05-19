@@ -4,6 +4,8 @@
 
 #define COLORCOUNT 8
 
+int IsServer;
+
 str PaintColorActors[COLORCOUNT] =
 {
     "DrawBulletBlack",

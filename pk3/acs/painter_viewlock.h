@@ -81,7 +81,7 @@ function void ScreenToWorld_Software(int screenX, int screenY, int angle, int pi
     // The True3D function should produce identical results to this (precision
     //  permitting) when pitch is 0.
     
-    int fovScalar = FixedDiv(cos(fov/2), sin(fov/2));
+    int fovScalar = cot(fov/2);
     
     int forwardX = FixedMul(fovScalar, cos(angle));
     int forwardY = FixedMul(fovScalar, sin(angle));
@@ -128,6 +128,8 @@ script "Golf_PainterViewLock" enter clientside
     
     int hudX = 0;
     int hudY = 0;
+    int aimX = 0;
+    int aimY = 0;
     int oldBarRatio = 0;
     
     int lastShot = -3;
@@ -168,7 +170,10 @@ script "Golf_PainterViewLock" enter clientside
         
         int deltaX = GetPlayerInput(-1, INPUT_YAW);
         int deltaY = FixedMul(itofDiv(screenW, screenH), GetPlayerInput(-1, INPUT_PITCH));
-        int sens   = itofDiv(GetUserCVar(pln, "golf_paintsens") * 2, 25);
+        int sens   = itofDiv(GetUserCVar(pln, "golf_cl_paintsens") * 2, 25);
+        
+        int oldHudX = hudX;
+        int oldHudY = hudY;
         
         hudX -= FixedMul(deltaX, sens);
         hudY -= FixedMul(deltaY, sens);
@@ -187,7 +192,6 @@ script "Golf_PainterViewLock" enter clientside
         hudX = middle(-1.0, hudX, 1.0);
         hudY = middle(-1.0, hudY, 1.0 - (barRatio * 2));
         
-        
         int aspect = itofDiv(screenW, screenH);
         int drawX  = setFraction(320.0 + (240 * FixedMul(hudX, aspect)), 0.4);
         int drawY  = setFraction(240.0 + (240 * hudY), 0.4);
@@ -204,8 +208,19 @@ script "Golf_PainterViewLock" enter clientside
         //  degrees to the left/up, and 1.0 corresponds to looking X degrees to
         //  the right/down, where X is half your FOV
         
-        int aimX = FixedMul(hudX, itofDiv(screenW * 3, screenH * 4));
-        int aimY = FixedMul(hudY + barRatio, 0.75);
+        int oldAimX = aimX;
+        int oldAimY = aimY;
+        
+        aimX = FixedMul(hudX, itofDiv(screenW * 3, screenH * 4));
+        aimY = FixedMul(hudY + barRatio, 0.75);
+        
+        // we need to keep aim[XY] updated for the delta stuff to work, but why
+        //  do the rest if we aren't painting
+        if (!(buttons & BT_ATTACK))
+        {
+            Delay(1);
+            continue;
+        }
         
         int x = GetActorX(0);
         int y = GetActorY(0);
@@ -224,19 +239,39 @@ script "Golf_PainterViewLock" enter clientside
             software = GetCVar("vid_renderer") == 0;
         }
         
-        if (software)
+        if (software) { fov = itofDiv(middle(5, fov, 167), 360); }
+        else          { fov = itofDiv(middle(5, fov, 170), 360); }
+        
+        // we don't need the old delta values anymore
+        deltaX = oldAimX - aimX;
+        deltaY = oldAimY - aimY;
+        int deltaLen   = VectorLength(deltaX, deltaY);
+        int deltaIters = oldRound(FixedMul(deltaLen * 100, tan(fov/2)));
+        
+        if (!IsServer)
         {
-            fov = itofDiv(middle(5, fov, 167), 360);
-            ScreenToWorld_Software(aimX, aimY, angle, pitch, fov);
-        }
-        else
-        {
-            fov = itofDiv(middle(5, fov, 170), 360);
-            ScreenToWorld_True3D(aimX, aimY, angle, pitch, fov, hasZScript);
+            int interpCap = GetCVar("golf_sv_paintinterpcap") - 1;
+            if (interpCap >= 0) { deltaIters = min(deltaIters, max(0, interpCap)); }
         }
         
-        if (buttons & BT_ATTACK)
+        for (int i = 0; i <= deltaIters; i++)
         {
+            int aimStepX, aimStepY;
+            
+            if (deltaIters == 0)
+            {
+                aimStepX = aimX;
+                aimStepY = aimY;
+            }
+            else
+            {
+                aimStepX = aimX + fractionMult(deltaX, i, deltaIters);
+                aimStepY = aimY + fractionMult(deltaY, i, deltaIters);
+            }
+            
+            if (software) { ScreenToWorld_Software(aimStepX, aimStepY, angle, pitch, fov); }
+            else          { ScreenToWorld_True3D(  aimStepX, aimStepY, angle, pitch, fov, hasZScript); }
+            
             SprayPaint(AimVector[0], AimVector[1], AimVector[2], isZandronum);
         }
         

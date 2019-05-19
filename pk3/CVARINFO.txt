@@ -1,2 +1,4 @@
-user int golf_paintsens = 100;
-user int golf_colorsens = 250;
+server int golf_sv_paintinterpcap = 4;
+
+user int golf_cl_paintsens = 100;
+user int golf_cl_colorsens = 250;
