@@ -89,6 +89,12 @@ function int sign(int x)
     return 1;
 }
 
+function int abs(int x)
+{
+    if (x < 0) { return -x; }
+    return x;
+}
+
 
 // Shortest distance between two angles
 function int angleDifference(int ang1, int ang2)

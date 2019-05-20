@@ -142,19 +142,35 @@ script "Painter_BuildAnchors" (int startID, int midID, int endID)
     int midStartProj = dot3(midStartX, midStartY, midStartZ, normSrtEndX, normSrtEndY, normSrtEndZ);
     int midEndProj   = dot3(midEndX,   midEndY,   midEndZ,   normSrtEndX, normSrtEndY, normSrtEndZ);
     
-    // if both points are on the same side, it makes things look weird
+    int startAncX, startAncY, startAncZ;
+    int endAncX,   endAncY,   endAncZ;
+    
+    // if both points are on the same side, that's because of a very sharp turn,
+    //  so forget having the curve be smooth in those cases
     if (sign(midStartProj) == sign(midEndProj))
     {
-        terminate;
+        startAncX = midX + (midStartX / 2) - (startEndX / 5);
+        startAncY = midY + (midStartY / 2) - (startEndY / 5);
+        startAncZ = midZ + (midStartZ / 2) - (startEndZ / 5);
+        
+        endAncX   = midX + (midEndX / 2) + (startEndX / 5);
+        endAncY   = midY + (midEndY / 2) + (startEndY / 5);
+        endAncZ   = midZ + (midEndZ / 2) + (startEndZ / 5);
+        
+        //SpawnForced("DebugInterpPoint1", midX,      midY,      midZ);
+        //SpawnForced("DebugInterpPoint2", startAncX, startAncY, startAncZ);
+        //SpawnForced("DebugInterpPoint2", endAncX,   endAncY,   endAncZ);
     }
-    
-    int startAncX = midX + FixedMul(normSrtEndX, FixedMul(midStartProj, 0.35));
-    int startAncY = midY + FixedMul(normSrtEndY, FixedMul(midStartProj, 0.35));
-    int startAncZ = midZ + FixedMul(normSrtEndZ, FixedMul(midStartProj, 0.35));
-    
-    int endAncX   = midX + FixedMul(normSrtEndX, FixedMul(midEndProj, 0.35));
-    int endAncY   = midY + FixedMul(normSrtEndY, FixedMul(midEndProj, 0.35));
-    int endAncZ   = midZ + FixedMul(normSrtEndZ, FixedMul(midEndProj, 0.35));
+    else
+    {
+        startAncX = midX + FixedMul(normSrtEndX, FixedMul(midStartProj, 0.35));
+        startAncY = midY + FixedMul(normSrtEndY, FixedMul(midStartProj, 0.35));
+        startAncZ = midZ + FixedMul(normSrtEndZ, FixedMul(midStartProj, 0.35));
+        
+        endAncX   = midX + FixedMul(normSrtEndX, FixedMul(midEndProj, 0.35));
+        endAncY   = midY + FixedMul(normSrtEndY, FixedMul(midEndProj, 0.35));
+        endAncZ   = midZ + FixedMul(normSrtEndZ, FixedMul(midEndProj, 0.35));
+    }
     
     int startAncID = UniqueTID();
     int endAncID   = UniqueTID();

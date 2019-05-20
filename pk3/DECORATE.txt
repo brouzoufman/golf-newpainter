@@ -439,3 +439,35 @@ actor AnchorPoint
         stop
     }
 }
+
+
+actor DebugInterpPoint1
+{
+    +NOINTERACTION
+    +SERVERSIDEONLY
+    
+    Scale 0.25
+    
+    States
+    {
+      Spawn:
+        BAL2 A 70 bright
+        stop
+    }
+}
+
+
+actor DebugInterpPoint2
+{
+    +NOINTERACTION
+    +SERVERSIDEONLY
+    
+    Scale 0.125
+    
+    States
+    {
+      Spawn:
+        PLSS A 70 bright
+        stop
+    }
+}
