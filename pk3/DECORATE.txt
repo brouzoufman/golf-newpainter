@@ -413,8 +413,6 @@ actor InterpPoint
     // AAPTR_MASTER is the point's left anchor, used for interpolating from the previous point
     // AAPTR_TRACER is the point's right anchor, used for interpolating to the next point
     
-    var int user_t;
-    
     States
     {
       Spawn:
@@ -438,19 +436,6 @@ actor AnchorPoint
     {
       Spawn:
         BAL1 A 18 bright
-        stop
-    }
-}
-
-actor DebugBezierPoint
-{
-    +NOINTERACTION
-    Scale 0.2
-    
-    States
-    {
-      Spawn:
-        BAL2 A 35 bright
         stop
     }
 }
