@@ -69,6 +69,11 @@ function int oldRound(int toround)
     return (toround + 0.5) >> 16;
 }
 
+function int ceilTo(int num, int interval)
+{
+    return ((num + interval - 1) / interval) * interval;
+}
+
 
 function int mod(int x, int y)
 {
@@ -76,6 +81,14 @@ function int mod(int x, int y)
     if (ret < 0) { ret = y + ret; }
     return ret;
 }
+
+function int sign(int x)
+{
+    if (x < 0)  { return -1; }
+    if (x == 0) { return 0; }
+    return 1;
+}
+
 
 // Shortest distance between two angles
 function int angleDifference(int ang1, int ang2)
@@ -139,6 +152,14 @@ function void SetInventory(int item, int amount)
 }
 
 
+function int ActivatorToPlayer(int i)
+{
+    if (i < 0 || i >= PLAYERMAX) { return false; }
+    if (i < 8) { SetActivator(0, AAPTR_PLAYER1 << i); }
+    return SetActivatorToPlayer(i);
+}
+
+
 int Rotate3D_Ret[3];
 
 function void Rotate3D(int x, int y, int z, int yaw, int pitch)
@@ -164,6 +185,11 @@ function void Rotate3D(int x, int y, int z, int yaw, int pitch)
 function int HasPainterOut(void)
 {
     return CheckWeapon("NewPainter") || CheckWeapon("NewPaintWand");
+}
+
+function int WantsToPaint(void)
+{
+    return CheckInventory("PaintingEnabled") && (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_ATTACK);
 }
 
 

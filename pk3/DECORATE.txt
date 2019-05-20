@@ -331,3 +331,126 @@ actor PowerNoSpeed: PowerSpeed
         stop
     }
 }
+
+
+
+
+
+actor PaintPuff
+{
+    Radius 0
+    Height 0
+    
+    Species "Player"
+    
+    +NOINTERACTION
+    +PAINLESS
+    +BLOODLESSIMPACT
+    +PUFFONACTORS
+    +ALWAYSPUFF
+    +THRUSPECIES
+    +PUFFGETSOWNER
+    +SERVERSIDEONLY
+    
+    States
+    {
+      Spawn:
+        TNT1 A 0
+        TNT1 A 4 ACS_NamedExecuteWithResult("Painter_MarkSpot")
+        stop
+    }
+}
+
+actor PaintPuffBlack
+{
+    Radius 0
+    Height 0
+    
+    Translation "170:185=[0,0,0]:[0,0,0]"
+    Decal DrawingChipBlack
+    Species "Player"
+    
+    +NOINTERACTION
+    +PAINLESS
+    +BLOODLESSIMPACT
+    +PUFFONACTORS
+    +ALWAYSPUFF
+    +THRUSPECIES
+    +CLIENTSIDEONLY
+    
+    States
+    {
+      Spawn:
+        TNT1 A 0
+        TNT1 A 0 ACS_NamedExecuteWithResult("Painter_MarkSpot")
+        TNT1 AA 0 A_SpawnItemEx("SprayParticle",0,0,0,frandom(-1.0,1.0),frandom(-1.0,1.0),frandom(-1.0,1.0),0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+        TNT1 A 4
+        stop
+    }
+}
+
+actor PaintPuffRed:     PaintPuffBlack { Decal DrawingChipRed       Translation "170:185=[255,0,0]:[255,0,0]" }
+actor PaintPuffGreen:   PaintPuffBlack { Decal DrawingChipGreen     Translation "170:185=[0,255,0]:[0,255,0]" }
+actor PaintPuffBlue:    PaintPuffBlack { Decal DrawingChipBlue      Translation "170:185=[0,0,255]:[0,0,255]" }
+actor PaintPuffYellow:  PaintPuffBlack { Decal DrawingChipYellow    Translation "170:185=[255,255,0]:[255,255,0]" }
+actor PaintPuffMagenta: PaintPuffBlack { Decal DrawingChipMagenta   Translation "170:185=[255,0,255]:[255,0,255]" }
+actor PaintPuffCyan:    PaintPuffBlack { Decal DrawingChipCyan      Translation "170:185=[0,255,255]:[0,255,255]" }
+actor PaintPuffWhite:   PaintPuffBlack { Decal DrawingChipWhite     Translation "170:185=[255,255,255]:[255,255,255]" }
+
+
+
+actor InterpPoint
+{
+    +NOINTERACTION
+    +SERVERSIDEONLY
+    RenderStyle None
+    Scale 0.25
+    
+    Radius 0
+    Height 0
+    
+    // AAPTR_TARGET is the previous point
+    // AAPTR_MASTER is the point's left anchor, used for interpolating from the previous point
+    // AAPTR_TRACER is the point's right anchor, used for interpolating to the next point
+    
+    var int user_t;
+    
+    States
+    {
+      Spawn:
+        PLSS A 35 bright
+        stop
+    }
+}
+
+
+actor AnchorPoint
+{
+    +NOINTERACTION
+    +SERVERSIDEONLY
+    RenderStyle None
+    Scale 0.0125
+    
+    Radius 0
+    Height 0
+    
+    States
+    {
+      Spawn:
+        BAL1 A 18 bright
+        stop
+    }
+}
+
+actor DebugBezierPoint
+{
+    +NOINTERACTION
+    Scale 0.2
+    
+    States
+    {
+      Spawn:
+        BAL2 A 35 bright
+        stop
+    }
+}

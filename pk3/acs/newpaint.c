@@ -2,6 +2,7 @@
 
 #include "zcommon.acs"
 
+#define PLAYERMAX 64
 #define COLORCOUNT 8
 
 int IsServer;
@@ -16,6 +17,18 @@ str PaintColorActors[COLORCOUNT] =
     "DrawBulletMagenta",
     "DrawBulletCyan",
     "DrawBulletWhite",
+};
+
+str PaintColorPuffs[COLORCOUNT] =
+{
+    "PaintPuffBlack",
+    "PaintPuffRed",
+    "PaintPuffGreen",
+    "PaintPuffBlue",
+    "PaintPuffYellow",
+    "PaintPuffMagenta",
+    "PaintPuffCyan",
+    "PaintPuffWhite",
 };
 
 str PaintColorGraphics[COLORCOUNT] =
@@ -35,3 +48,4 @@ str PaintColorGraphics[COLORCOUNT] =
 #include "painter_scripts.h"
 #include "painter_viewlock.h"
 #include "painter_colorpick.h"
+#include "painter_lerp.h"

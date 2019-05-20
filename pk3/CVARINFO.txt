@@ -1,6 +1,4 @@
 server int golf_sv_paintinterpcap = 4;
-server noarchive bool golf_debug_paintinterp = false;
 
 user int  golf_cl_paintsens   = 100;
-user int  golf_cl_colorsens   = 250;
-user bool golf_cl_paintinterp = true;
+user int  golf_cl_colorsens   = 100;

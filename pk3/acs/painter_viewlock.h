@@ -166,9 +166,9 @@ script "Golf_PainterViewLock" enter clientside
             aimY = 0;
             
             // for if we're spraying without locking the view
-            if (HasPainterOut() && (buttons & BT_ATTACK))
+            if (HasPainterOut() && WantsToPaint())
             {
-                InterpSprayPaint_FreeAim(oldAngle, oldPitch, angle, pitch, GetUserCVar(pln, "golf_cl_paintinterp"), isZandronum);
+                SprayPaint(0,0,0, isZandronum);
             }
             
             Delay(1);
@@ -225,143 +225,34 @@ script "Golf_PainterViewLock" enter clientside
         aimX = FixedMul(hudX, itofDiv(screenW * 3, screenH * 4));
         aimY = FixedMul(hudY + barRatio, 0.75);
         
-        if (buttons & BT_ATTACK)
+        if (WantsToPaint())
         {
             int x = GetActorX(0);
             int y = GetActorY(0);
-            int z = GetActorZ(0) + GetActorViewHeight(0);
+            int z = GetActorZ(0) + GetActorViewHeight(0) - Golf_GetFloorClip(0);
             
             int fov = GetPlayerInfo(pln, PLAYERINFO_FOV);
             
             if (hasZScript) { software = GetCVar("vid_rendermode") < 2; }
             else            { software = GetCVar("vid_renderer") == 0; }
             
-            InterpSprayPaint_Projected(oldAimX, oldAimY, aimX, aimY, angle, pitch, GetUserCVar(pln, "golf_cl_paintinterp"), fov, isZandronum, hasZScript, software);
+            if (software)
+            {
+                fov = itofDiv(middle(5, fov, 167), 360);
+                ScreenToWorld_Software(aimX, aimY, angle, pitch, fov);
+            }
+            else
+            { 
+                fov = itofDiv(middle(5, fov, 170), 360);
+                ScreenToWorld_True3D(aimX, aimY, angle, pitch, fov, hasZScript);
+            }
+            
+            SprayPaint(AimVector[0], AimVector[1], AimVector[2], isZandronum);
         }
         
         Delay(1);
     }
 }
-
-
-
-function void InterpSprayPaint_FreeAim(int oldAngle, int oldPitch, int angle, int pitch, int interp, int isZandronum)
-{
-    if (!interp)
-    {
-        SprayPaint(0,0,0, isZandronum);
-        return;
-    }
-    
-    int deltaAngle = angle - oldAngle;
-    int deltaPitch = pitch - oldPitch;
-    
-    int oldX = FixedMul(cos(oldAngle), cos(oldPitch));
-    int oldY = FixedMul(sin(oldAngle), cos(oldPitch));
-    int oldZ = -sin(oldPitch);
-    
-    // I have to do this because ACS is a piece of shit
-    int oldLen = VectorLength(VectorLength(oldX,oldY),oldZ);
-    oldX = FixedDiv(oldX, oldLen);
-    oldY = FixedDiv(oldY, oldLen);
-    oldZ = FixedDiv(oldZ, oldLen);
-    
-    int curX = FixedMul(cos(angle), cos(pitch));
-    int curY = FixedMul(sin(angle), cos(pitch));
-    int curZ = -sin(pitch);
-    
-    // 16.16 fixed point numbers are fucking awful to do math with
-    int curLen = VectorLength(VectorLength(curX,curY),curZ);
-    curX = FixedDiv(curX, curLen);
-    curY = FixedDiv(curY, curLen);
-    curZ = FixedDiv(curZ, curLen);
-    
-    cross3(oldX, oldY, oldZ, curX, curY, curZ);
-    int deltaDot      = dot3(oldX, oldY, oldZ, curX, curY, curZ);
-    int deltaCrossLen = VectorLength(VectorLength(cross3_ret[0], cross3_ret[1]), cross3_ret[2]);
-    int arcLength     = atan(FixedDiv(deltaCrossLen, deltaDot));
-    int arcAngle      = angle3Unit(oldX,oldY,oldZ, curX,curY,curZ); // accurate to ~1 degree
-    
-    int deltaIters = oldRound(arcLength * 600);
-    
-    if (GetCVar("golf_debug_paintinterp") || !IsServer)
-    {
-        int interpCap = GetCVar("golf_sv_paintinterpcap") - 1;
-        if (interpCap >= 0) { deltaIters = min(deltaIters, max(0, interpCap)); }
-    }
-    
-    if (deltaIters == 0)
-    {
-        SprayPaint(0,0,0, isZandronum);
-    }
-    else
-    {
-        int sinArcAngle = sin(arcAngle);
-        
-        for (int i = 1; i <= deltaIters; i++)
-        {
-            int arcStep = fractionMult(1.0, i, deltaIters);
-            
-            int oldStep = FixedDiv(sin(FixedMul(1.0 - arcStep, arcAngle)), sinArcAngle);
-            int curStep = FixedDiv(sin(FixedMul(arcStep,       arcAngle)), sinArcAngle);
-            
-            int stepX = FixedMul(oldX, oldStep) + FixedMul(curX, curStep);
-            int stepY = FixedMul(oldY, oldStep) + FixedMul(curY, curStep);
-            int stepZ = FixedMul(oldZ, oldStep) + FixedMul(curZ, curStep);
-            
-            SprayPaint(stepX,stepY,stepZ, isZandronum);
-        }
-    }
-}
-
-
-// 10 parameters
-// maybe I shouldn't have pulled this out of the loop
-function void InterpSprayPaint_Projected(int oldAimX, int oldAimY, int aimX, int aimY, int angle, int pitch, int interp, int fov, int isZandronum, int hasZScript, int software)
-{        
-    if (software) { fov = itofDiv(middle(5, fov, 167), 360); }
-    else          { fov = itofDiv(middle(5, fov, 170), 360); }
-    
-    if (!interp)
-    {
-        if (software) { ScreenToWorld_Software(aimX, aimY, angle, pitch, fov); }
-        else          { ScreenToWorld_True3D(  aimX, aimY, angle, pitch, fov, hasZScript); }
-        SprayPaint(AimVector[0], AimVector[1], AimVector[2], isZandronum);
-        return;
-    }
-    
-    int deltaX = aimX - oldAimX;
-    int deltaY = aimY - oldAimY;
-    int deltaLen   = VectorLength(deltaX, deltaY);
-    int deltaIters = oldRound(FixedMul(deltaLen * 100, tan(fov/2)));
-    
-    if (GetCVar("golf_debug_paintinterp") || !IsServer)
-    {
-        int interpCap = GetCVar("golf_sv_paintinterpcap") - 1;
-        if (interpCap >= 0) { deltaIters = min(deltaIters, max(0, interpCap)); }
-    }
-    
-    if (deltaIters == 0)
-    {
-        if (software) { ScreenToWorld_Software(aimX, aimY, angle, pitch, fov); }
-        else          { ScreenToWorld_True3D(  aimX, aimY, angle, pitch, fov, hasZScript); }
-        SprayPaint(AimVector[0], AimVector[1], AimVector[2], isZandronum);
-    }
-    else
-    {
-        for (int i = 1; i <= deltaIters; i++)
-        {
-            int aimStepX = oldAimX + fractionMult(deltaX, i, deltaIters);
-            int aimStepY = oldAimY + fractionMult(deltaY, i, deltaIters);
-            
-            if (software) { ScreenToWorld_Software(aimStepX, aimStepY, angle, pitch, fov); }
-            else          { ScreenToWorld_True3D(  aimStepX, aimStepY, angle, pitch, fov, hasZScript); }
-            
-            SprayPaint(AimVector[0], AimVector[1], AimVector[2], isZandronum);
-        }
-    }
-}
-
 
 
 function void SprayPaint(int aimX, int aimY, int aimZ, int isZand)
