@@ -351,6 +351,7 @@ actor PaintPuff
     +THRUSPECIES
     +PUFFGETSOWNER
     +SERVERSIDEONLY
+    +NOTIMEFREEZE
     
     States
     {
