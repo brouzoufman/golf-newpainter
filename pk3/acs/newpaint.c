@@ -1,6 +1,6 @@
 #library "newpaint"
 
-#include "zcommon.acs"
+#include "zcommon/zcommon.h"
 
 #define PLAYERMAX 64
 #define COLORCOUNT 8
